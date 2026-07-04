@@ -137,7 +137,7 @@ export default function FileGrid({ folderId, search, onOpenFolder }) {
           })}
         </div>
       ) : (
-        <div style={gridWrap}>
+        <div className="tile-grid" style={gridWrap}>
           {visibleFolders.map((folder) => (
             <div key={folder.id} style={tileStyle} onClick={() => onOpenFolder(folder)}>
               <div style={tileThumb}>
@@ -253,14 +253,16 @@ const emptyState = {
 const rowStyle = {
   display: 'flex',
   alignItems: 'center',
-  gap: 14,
+  gap: 10,
   padding: '12px 14px',
   borderBottom: '1px solid var(--line)',
   cursor: 'pointer',
+  flexWrap: 'wrap',
 };
 
 const nameStyle = {
-  flex: 1,
+  flex: '1 1 140px',
+  minWidth: 0,
   fontSize: 14,
   color: 'var(--paper)',
   overflow: 'hidden',
@@ -272,7 +274,7 @@ const metaStyle = {
   fontFamily: 'var(--font-mono)',
   fontSize: 11,
   color: 'var(--paper-dim)',
-  width: 110,
+  minWidth: 70,
   textAlign: 'right',
 };
 
@@ -304,8 +306,6 @@ const dangerBtn = {
 // download button's place when there isn't one, so heights never shift.
 
 const gridWrap = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(6, 1fr)',
   gap: 14,
 };
 

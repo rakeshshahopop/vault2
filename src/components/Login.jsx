@@ -69,12 +69,12 @@ export default function Login() {
   );
 }
 
-const wrap = {
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: 'var(--ink-950)',
+const card = {
+  width: 360,
+  background: 'var(--ink-900)',
+  border: '1px solid var(--line)',
+  borderRadius: 10,
+  padding: 32,
 };
 
 const card = {

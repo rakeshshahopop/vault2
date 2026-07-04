@@ -2,26 +2,30 @@ import { useEffect, useState } from 'react';
 import Sidebar from './Sidebar.jsx';
 import FileGrid from './FileGrid.jsx';
 import UploadModal from './UploadModal.jsx';
-import { watchFolders } from '../lib/data';
 
 export default function Vault({ user, onSignOut }) {
   const [currentFolder, setCurrentFolder] = useState(null); // null = root
   const [trail, setTrail] = useState([{ id: null, name: 'Root' }]);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [search, setSearch] = useState('');
+  // Sidebar is an off-canvas drawer on narrow screens, closed by default.
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   function navigateTo(folder) {
     if (folder === null) {
       setCurrentFolder(null);
       setTrail([{ id: null, name: 'Root' }]);
-      return;
+    } else {
+      setCurrentFolder(folder.id);
+      setTrail((prev) => {
+        const idx = prev.findIndex((f) => f.id === folder.id);
+        if (idx !== -1) return prev.slice(0, idx + 1);
+        return [...prev, folder];
+      });
     }
-    setCurrentFolder(folder.id);
-    setTrail((prev) => {
-      const idx = prev.findIndex((f) => f.id === folder.id);
-      if (idx !== -1) return prev.slice(0, idx + 1);
-      return [...prev, folder];
-    });
+    // On mobile, picking a folder should close the drawer so the file list
+    // is immediately visible instead of staying hidden behind it.
+    setSidebarOpen(false);
   }
 
   return (
@@ -30,25 +34,37 @@ export default function Vault({ user, onSignOut }) {
         currentFolder={currentFolder}
         onNavigate={navigateTo}
         uid={user.uid}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       <div style={main}>
         <header style={topbar}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-            {trail.map((f, i) => (
-              <span key={f.id ?? 'root'} style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <button
-                  onClick={() => navigateTo(f.id === null ? null : f)}
-                  style={crumbBtn(i === trail.length - 1)}
-                >
-                  {f.name}
-                </button>
-                {i < trail.length - 1 && <span style={{ color: 'var(--paper-dim)' }}>/</span>}
-              </span>
-            ))}
+          <div style={topbarLeft}>
+            <button
+              className="hamburger-btn"
+              style={hamburgerBtn}
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open folders"
+            >
+              ☰
+            </button>
+            <div style={crumbRow}>
+              {trail.map((f, i) => (
+                <span key={f.id ?? 'root'} style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                  <button
+                    onClick={() => navigateTo(f.id === null ? null : f)}
+                    style={crumbBtn(i === trail.length - 1)}
+                  >
+                    {f.name}
+                  </button>
+                  {i < trail.length - 1 && <span style={{ color: 'var(--paper-dim)' }}>/</span>}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div style={topbarRight}>
             <input
               placeholder="Filter this folder…"
               value={search}
@@ -82,6 +98,8 @@ const shell = {
   display: 'flex',
   height: '100vh',
   background: 'var(--ink-950)',
+  position: 'relative',
+  overflow: 'hidden',
 };
 
 const main = {
@@ -89,15 +107,50 @@ const main = {
   display: 'flex',
   flexDirection: 'column',
   minWidth: 0,
+  width: '100%',
 };
 
 const topbar = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '16px 24px',
+  padding: '12px 16px',
   borderBottom: '1px solid var(--line)',
-  gap: 16,
+  gap: 12,
+  flexWrap: 'wrap',
+};
+
+const topbarLeft = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  minWidth: 0,
+};
+
+const crumbRow = {
+  display: 'flex',
+  alignItems: 'baseline',
+  gap: 8,
+  flexWrap: 'wrap',
+  minWidth: 0,
+};
+
+// Only shown on narrow screens (see index.css / .hamburger-btn media query).
+const hamburgerBtn = {
+  display: 'none',
+  background: 'var(--ink-800)',
+  border: '1px solid var(--line)',
+  borderRadius: 6,
+  padding: '8px 10px',
+  color: 'var(--paper)',
+  fontSize: 14,
+  flexShrink: 0,
+};
+
+const topbarRight = {
+  display: 'flex',
+  gap: 10,
+  alignItems: 'center',
   flexWrap: 'wrap',
 };
 
@@ -122,6 +175,7 @@ const searchInput = {
   color: 'var(--paper)',
   fontSize: 13,
   width: 200,
+  maxWidth: '40vw',
 };
 
 const primaryBtn = {

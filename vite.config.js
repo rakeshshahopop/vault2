@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react';
 // so Vite needs to know that subpath ("base") to load its JS/CSS correctly.
 // Replace 'REPO_NAME' below with your actual GitHub repository name.
 export default defineConfig({
-  base: 'rakeshshahopop/vault2',
+  base: '/vault2/',
   plugins: [react()],
   server: {
     port: 5173,

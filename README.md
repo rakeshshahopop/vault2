@@ -4,7 +4,7 @@ This walks through everything, in order, assuming you've never done this
 before. Don't skip steps — each one depends on the last.
 
 There are 3 phases:
-1. Set up Firebase (the login system + storage) — **do this first**
+1. Set up Fire base (the login system + storage) — **do this first**
 2. Run the site on your own computer to test it
 3. Put it on GitHub so it's live on the internet
 

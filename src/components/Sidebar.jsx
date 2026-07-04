@@ -82,7 +82,7 @@ function FolderNode({ folder, depth, currentFolder, onNavigate, uid }) {
   );
 }
 
-export default function Sidebar({ currentFolder, onNavigate, uid }) {
+export default function Sidebar({ currentFolder, onNavigate, uid, open, onClose }) {
   const [rootFolders, setRootFolders] = useState([]);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
@@ -101,58 +101,88 @@ export default function Sidebar({ currentFolder, onNavigate, uid }) {
   }
 
   return (
-    <aside style={sidebar}>
-      <div style={{ padding: '20px 16px 12px' }}>
-        <div className="mono" style={{ color: 'var(--brass)', fontSize: 13, letterSpacing: '0.12em', fontWeight: 600 }}>
-          VAULT
+    <>
+      {/* Dark overlay behind the drawer on mobile — tapping it closes the drawer. */}
+      <div
+        className="sidebar-overlay"
+        onClick={onClose}
+        style={{ ...overlay, display: open ? 'block' : 'none' }}
+      />
+
+      <aside className={`sidebar ${open ? 'sidebar-open' : ''}`} style={sidebar}>
+        <div style={{ padding: '20px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div>
+            <div className="mono" style={{ color: 'var(--brass)', fontSize: 13, letterSpacing: '0.12em', fontWeight: 600 }}>
+              VAULT
+            </div>
+            <div style={{ color: 'var(--paper-dim)', fontSize: 11, marginTop: 4 }}>Restricted archive</div>
+          </div>
+          <button className="sidebar-close-btn" style={closeBtn} onClick={onClose} aria-label="Close">
+            ✕
+          </button>
         </div>
-        <div style={{ color: 'var(--paper-dim)', fontSize: 11, marginTop: 4 }}>Restricted archive</div>
-      </div>
 
-      <div style={{ padding: '4px 8px', flex: 1, overflowY: 'auto' }}>
-        <div
-          onClick={() => onNavigate(null)}
-          style={{ ...row(0), background: currentFolder === null ? 'var(--ink-800)' : 'transparent' }}
-        >
-          <span className="mono" style={{ color: 'var(--paper-dim)', fontSize: 11, width: 12 }}>—</span>
-          <span style={{ color: currentFolder === null ? 'var(--paper)' : 'var(--paper-dim)', fontSize: 13 }}>
-            Root
-          </span>
-        </div>
+        <div style={{ padding: '4px 8px', flex: 1, overflowY: 'auto' }}>
+          <div
+            onClick={() => onNavigate(null)}
+            style={{ ...row(0), background: currentFolder === null ? 'var(--ink-800)' : 'transparent' }}
+          >
+            <span className="mono" style={{ color: 'var(--paper-dim)', fontSize: 11, width: 12 }}>—</span>
+            <span style={{ color: currentFolder === null ? 'var(--paper)' : 'var(--paper-dim)', fontSize: 13 }}>
+              Root
+            </span>
+          </div>
 
-        {rootFolders.map((folder) => (
-          <FolderNode
-            key={folder.id}
-            folder={folder}
-            depth={0}
-            currentFolder={currentFolder}
-            onNavigate={onNavigate}
-            uid={uid}
-          />
-        ))}
-
-        {adding && (
-          <form onSubmit={submitNew} style={{ ...row(0) }}>
-            <input
-              autoFocus
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onBlur={() => !newName && setAdding(false)}
-              placeholder="Folder name…"
-              style={inlineInput}
+          {rootFolders.map((folder) => (
+            <FolderNode
+              key={folder.id}
+              folder={folder}
+              depth={0}
+              currentFolder={currentFolder}
+              onNavigate={onNavigate}
+              uid={uid}
             />
-          </form>
-        )}
-      </div>
+          ))}
 
-      <div style={{ padding: 12, borderTop: '1px solid var(--line)' }}>
-        <button style={newFolderBtn} onClick={() => setAdding(true)}>
-          + NEW FOLDER (ROOT)
-        </button>
-      </div>
-    </aside>
+          {adding && (
+            <form onSubmit={submitNew} style={{ ...row(0) }}>
+              <input
+                autoFocus
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onBlur={() => !newName && setAdding(false)}
+                placeholder="Folder name…"
+                style={inlineInput}
+              />
+            </form>
+          )}
+        </div>
+
+        <div style={{ padding: 12, borderTop: '1px solid var(--line)' }}>
+          <button style={newFolderBtn} onClick={() => setAdding(true)}>
+            + NEW FOLDER (ROOT)
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
+
+const overlay = {
+  position: 'fixed',
+  inset: 0,
+  background: 'rgba(0,0,0,0.5)',
+  zIndex: 40,
+};
+
+const closeBtn = {
+  display: 'none',
+  background: 'none',
+  border: 'none',
+  color: 'var(--paper-dim)',
+  fontSize: 16,
+  padding: 4,
+};
 
 const sidebar = {
   width: 240,
